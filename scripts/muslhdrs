@@ -1,0 +1,60 @@
+#!/bin/bash
+
+reset
+
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+
+echo Starting musl header install for target $1
+
+TCPREFIX="$POSBUILDROOT/toolchains"
+PREFIX="/usr"
+TARGET=$1
+PATH="$TCPREFIX/bin:$PATH"
+TARG_CFGMUSL="$POSBUILDROOT/etc/targets/$TARGET/musl_configure"
+PKG_MUSL=`cat etc/pkg_musl`
+BDIR_MUSL="build/musl-$TARGET"
+SDIR_MUSL="$POSBUILDROOT/src3m/$PKG_MUSL"
+
+echo musl package: $PKG_MUSL
+
+if [ ! -d "$SDIR_MUSL" ]; then
+        echo "No such package: $PKG_MUSL" >&2
+        exit
+fi
+
+if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
+        echo "No such target: $TARGET" >&2
+        exit
+fi
+
+source "$TARG_CFGMUSL"
+
+if [ ! -d "$BDIR_MUSL" ]; then
+	echo "Creating build directory for musl: " $BDIR_MUSL
+	mkdir "$BDIR_MUSL"
+fi
+
+cd "$BDIR_MUSL"
+if [ -z "$2" ]; then
+	echo "Configuring musl..."
+	{
+		$SDIR_MUSL/configure --target=$TARGET --prefix="$PREFIX" \
+				$MUSL_CFG
+	} || {
+		echo "Failed to configure musl!" >&2
+		exit
+	}
+fi
+
+echo "Installing musl headers..."
+{
+	make install-headers DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
+} || {
+	echo "Failed to install musl!" >&2
+	exit
+}
+
+echo "Done"
+
+cd $OLDPWD

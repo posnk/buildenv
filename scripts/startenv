@@ -1,0 +1,4 @@
+#!/bin/bash
+export POSBUILDROOT=`pwd`
+export PATH=$PATH:$POSBUILDROOT/bin
+zsh

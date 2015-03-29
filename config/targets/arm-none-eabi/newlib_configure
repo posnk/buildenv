@@ -1,0 +1,1 @@
+NEWLIB_CFG="--disable-newlib-supplied-syscalls --disable-libgloss"

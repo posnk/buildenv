@@ -1,0 +1,65 @@
+#!/bin/bash
+
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+
+echo Starting binutils compilation for target $1
+
+PREFIX="$POSBUILDROOT/toolchains"
+TARGET=$1
+PATH="$PREFIX/bin:$PATH"
+TARG_CFGBUTILS="$POSBUILDROOT/etc/targets/$TARGET/binutils_configure"
+PKG_BUTILS=`cat etc/pkg_binutils`
+BDIR_BUTILS="build/binutils-$TARGET"
+SDIR_BUTILS="$POSBUILDROOT/src3m/$PKG_BUTILS"
+
+echo binutils package: $PKG_BUTILS
+
+if [ ! -d "$SDIR_BUTILS" ]; then
+	echo "No such package: $PKG_BUTILS" >&2
+	exit
+fi
+
+source "$TARG_CFGBUTILS"
+
+if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
+	echo "No such target: $TARGET" >&2
+	exit
+fi
+
+if [ ! -d "$BDIR_BUTILS" ]; then
+	echo "Creating build directory for binutils: " $BDIR_BUTILS
+	mkdir "$BDIR_BUTILS"
+fi
+
+cd "$BDIR_BUTILS"
+if [ -z "$2" ]; then
+	echo "Configuring binutils..."
+	{
+		$SDIR_BUTILS/configure --target=$TARGET --prefix="$PREFIX" \
+				$BUTILS_CFG
+	} || {
+		echo "Failed to configure binutils!" >&2
+		exit
+	}
+fi
+
+echo "Building binutils..."
+{
+	make
+} || {
+	echo "Failed to build binutils!" >&2
+	exit
+}
+
+echo "Installing binutils..."
+{
+	make install
+} || {
+	echo "Failed to install binutils!" >&2
+	exit
+}
+
+echo "Done"
+
+cd $OLDPWD

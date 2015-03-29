@@ -1,0 +1,1 @@
+BUTILS_CFG="--with-sysroot=\"$POSBUILDROOT/sysroot/$TARGET\" --disable-nls --disable-werror"

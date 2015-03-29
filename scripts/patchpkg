@@ -1,0 +1,18 @@
+#!/bin/bash
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+echo patching $1
+if [ ! -d "src3p/$1" ]; then
+	echo "package $1 does not exist!" >&2
+	cd $OLDPWD
+	exit
+fi
+if [ -d "src3m/$1" ]; then
+	echo "package $1 has already been copied for modification!" >&2
+	cd $OLDPWD
+	exit
+fi
+cd src3m
+cp -r ../src3p/$1 ./$1
+patch -p0 < ../patch/$1-posnk.patch
+cd $OLDPWD

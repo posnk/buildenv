@@ -1,0 +1,20 @@
+#!/bin/bash
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+echo creating patch from modifications to package $1
+if [ ! -d "src3p/$1" ]; then
+	echo "package $1 does not exist!" >&2
+	cd $OLDPWD
+	exit
+fi
+if [ ! -d "src3m/$1" ]; then
+	echo "package $1 has not been copied for modification!" >&2
+	cd $OLDPWD
+	exit
+fi
+cd src3m/$1
+find . -type f -name '*~' -delete 
+cd ../..
+cd src3p
+diff -rupN $1/ ../src3m/$1/ > ../patch/$1-posnk.patch
+cd $OLDPWD

@@ -1,0 +1,5 @@
+#!/bin/bash
+cd $POSBUILDROOT
+rm -rf build/*
+rm -rf toolchains/*
+

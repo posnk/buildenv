@@ -1,0 +1,1 @@
+GCC_CFG="--disable-nls --enable-languages=c,c++ --without-headers"

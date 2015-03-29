@@ -1,0 +1,62 @@
+#!/bin/bash
+# Installs the build environment on a new system
+# Usage: installenv <install dir>
+
+INSTALLDIR=$1
+BUILDENVGIT="https://github.com/posnk/buildenv.git"
+
+if [ -z "$INSTALLDIR" ]; then
+	echo "Usage: installenv <install dir>" >&2
+	exit
+fi
+
+if [ -d "$INSTALLDIR" ]; then
+	echo "Error: installation directory already exists!" >&2
+	exit
+fi
+
+echo "Installing build environment in: " $INSTALLDIR
+
+mkdir "$INSTALLDIR" || {
+	echo "Could not create install directory!" >&2
+	exit
+}
+
+cd "$INSTALLDIR"
+
+echo "Creating directory structure..."
+{
+	mkdir build &&
+	mkdir src &&
+	mkdir src3m &&
+	mkdir src3p &&
+	mkdir patch &&
+	mkdir sysroot &&
+	mkdir tmp &&
+	mkdir toolchains 
+} || {
+	echo "Could not create directory structure!" >&2
+	exit
+}
+
+echo "Cloning build environment from git..."
+{
+	cd src &&
+	git clone "$BUILDENVGIT" &&
+	cd ..
+} || {
+	echo "Could not clone build environment!" >&2
+	exit
+}
+
+echo "Installing build environment binaries and configuration..."
+{
+	ln -s src/buildenv/scripts bin &&
+	ln -s src/buildenv/config etc
+} || {
+	echo "Could not install build environment!"
+	exit
+}
+
+echo "Build environment has been installed in $INSTALLDIR"
+echo "Invoke \"$INSTALLDIR/bin/startenv\" to launch the build environment"

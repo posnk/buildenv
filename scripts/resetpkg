@@ -1,0 +1,19 @@
+#!/bin/bash
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+echo resetting package $1 to upstream
+if [ ! -d "src3p/$1" ]; then
+	echo "package $1 does not exist!" >&2
+	cd $OLDPWD
+	exit
+fi
+if [ ! -d "src3m/$1" ]; then
+	echo "package $1 has never been copied for modification!" >&2
+	echo "if you intend to copy the package for modification, invoke:" >&2
+	echo "        editpkg $1"
+	cd $OLDPWD
+	exit
+fi
+rm -rf src3m/$1
+cp -r src3p/$1 src3m/$1
+cd $OLDPWD

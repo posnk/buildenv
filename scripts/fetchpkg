@@ -1,0 +1,8 @@
+#!/bin/bash
+echo fetching $2
+cd tmp
+wget $2 -O dlpkg
+cd ../src3p
+tar $1 ../tmp/dlpkg
+cd ..
+rm tmp/dlpkg
