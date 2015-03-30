@@ -1,0 +1,42 @@
+#!/bin/bash
+
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+
+echo Creating sysroot for target $1
+
+TARGET=$1
+SYSROOT_TARGET="$POSBUILDROOT/sysroot/$TARGET"
+
+if [ -d "$SYSROOT_TARGET" ]; then
+        echo "A sysroot for target $1 has already been created" >&2
+        exit
+fi
+
+mkdir "$SYSROOT_TARGET" || {
+	echo "Failed to create sysroot directory" >&2
+	exit
+}
+
+cd "$SYSROOT_TARGET" || {
+	echo "Could not switch to sysroot directory" >&2
+	exit
+}
+
+{
+	mkdir bin &&
+	mkdir sbin &&
+	mkdir lib &&
+	mkdir usr &&
+	mkdir etc &&
+	mkdir usr/src &&
+	mkdir usr/lib &&
+	mkdir usr/share &&
+	mkdir usr/include &&
+	mkdir usr/bin &&
+	mkdir usr/sbin
+} || {
+	echo "Failed to populate sysroot directory tree!" >&2
+	exit
+}
+
