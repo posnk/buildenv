@@ -1,0 +1,21 @@
+#!/bin/bash
+# Clone a posnk program from the main repository
+GITHOST="git@github.com:posnk"
+PRGNAME="$1"
+PRGDIR="$POSBUILDROOT/src/$PRGNAME"
+cd $POSBUILDROOT
+
+if [ -z "$PRGNAME" ]; then
+	echo "Usage: cloneprg <program name>" >&2
+	exit
+fi
+
+if [ -d "$PRGDIR" ]; then
+	echo "Program has already been cloned!" >&2
+	exit
+fi
+
+cd src
+git clone "$GITHOST/$PRGNAME.git"
+
+echo Done.

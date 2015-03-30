@@ -1,0 +1,52 @@
+#!/bin/bash
+
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+
+echo Starting busybox compilation for target $1 on $2
+
+ARCH=$2
+TCPREFIX="$POSBUILDROOT/toolchains"
+PRG=busybox-1.22.1
+TARGET=$1
+PATH="$TCPREFIX/bin:$PATH"
+BDIR_PRG="$POSBUILDROOT/build/$PRG-$TARGET"
+SDIR_PRG="$POSBUILDROOT/src3m/$PRG"
+
+if [ ! -d "$SDIR_PRG" ]; then
+        echo "No such program: $PRG" >&2
+        exit
+fi
+
+if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
+        echo "No such target: $TARGET" >&2
+        exit
+fi
+
+if [ ! -d "$BDIR_PRG" ]; then
+	echo "Creating build directory for $PRG: " $BDIR_PRG
+	mkdir "$BDIR_PRG"
+fi
+
+cd "$SDIR_PRG"
+
+echo "Building $PRG..."
+{
+	make ARCH=$ARCH CROSS_COMPILE=$TARGET- O="$BDIR_PRG/" DESTDIR="$POSBUILDROOT/sysroot/$TARGET" $3
+} || {
+	echo "Failed to build $PRG!" >&2
+	exit
+}
+
+#echo "Installing $PRG..."
+#{
+#	make ARCH=$ARCH CROSS_COMPILE=$TARGET- O="$BDIR_PRG/" DESTDIR="$POSBUILDROOT/sysroot/$TARGET" install
+#	
+#} || {
+#	echo "Failed to install $PRG!" >&2
+#	exit
+#}
+
+echo "Done"
+
+cd $OLDPWD

@@ -1,0 +1,65 @@
+#!/bin/bash
+
+OLDPWD=`pwd`
+cd $POSBUILDROOT
+
+echo Starting $1 compilation for target $2
+
+TCPREFIX="$POSBUILDROOT/toolchains"
+PREFIX="/usr"
+TARGET=$2
+PKG=$1
+PATH="$TCPREFIX/bin:$PATH"
+TARG_CFGPKG="$POSBUILDROOT/etc/targets/$TARGET/$PKG""_configure"
+BDIR_PKG="build/$PKG-$TARGET"
+SDIR_PKG="$POSBUILDROOT/src3m/$PKG"
+
+if [ ! -d "$SDIR_PKG" ]; then
+        echo "No such package: $PKG" >&2
+        exit
+fi
+
+if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
+        echo "No such target: $TARGET" >&2
+        exit
+fi
+
+source "$TARG_CFGPKG"
+
+if [ ! -d "$BDIR_PKG" ]; then
+	echo "Creating build directory for $PKG: " $BDIR_PKG
+	mkdir "$BDIR_PKG"
+fi
+
+cd "$BDIR_PKG"
+if [ -z "$3" ]; then
+	echo "Configuring $PKG..."
+	{
+		$SDIR_PKG/configure --host=$TARGET --prefix="$PREFIX" \
+				$PKG_CFG
+	} || {
+		echo "Failed to configure $PKG!" >&2
+		exit
+	}
+fi
+
+echo "Building $PKG..."
+{
+	make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
+} || {
+	echo "Failed to build $PKG!" >&2
+	exit
+}
+
+echo "Installing $PKG..."
+{
+	make tooldir=$PREFIX install DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
+	
+} || {
+	echo "Failed to install $PKG!" >&2
+	exit
+}
+
+echo "Done"
+
+cd $OLDPWD

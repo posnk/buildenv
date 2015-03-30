@@ -1,1 +1,1 @@
-NEWLIB_CFG=""
+NEWLIB_CFG="--disable-libgloss"
