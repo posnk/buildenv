@@ -16,12 +16,12 @@ SDIR_PKG="$POSBUILDROOT/src3m/$PKG"
 
 if [ ! -d "$SDIR_PKG" ]; then
         echo "No such package: $PKG" >&2
-        exit
+        exit 1
 fi
 
 if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
         echo "No such target: $TARGET" >&2
-        exit
+        exit 1
 fi
 
 source "$TARG_CFGPKG"
@@ -39,7 +39,7 @@ if [ -z "$3" ]; then
 				$PKG_CFG
 	} || {
 		echo "Failed to configure $PKG!" >&2
-		exit
+		exit 1
 	}
 fi
 
@@ -48,7 +48,7 @@ echo "Building $PKG..."
 	make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
 } || {
 	echo "Failed to build $PKG!" >&2
-	exit
+	exit 1
 }
 
 echo "Installing $PKG..."
@@ -57,7 +57,7 @@ echo "Installing $PKG..."
 	
 } || {
 	echo "Failed to install $PKG!" >&2
-	exit
+	exit 1
 }
 
 echo "Done"

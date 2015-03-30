@@ -14,12 +14,12 @@ SDIR_PRG="$POSBUILDROOT/src/$PRG"
 
 if [ ! -d "$SDIR_PRG" ]; then
         echo "No such program: $PRG" >&2
-        exit
+        exit 1
 fi
 
 if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
         echo "No such target: $TARGET" >&2
-        exit
+        exit 1
 fi
 
 if [ ! -d "$BDIR_PRG" ]; then
@@ -34,7 +34,7 @@ echo "Building $PRG..."
 	make TARGET=$TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
 } || {
 	echo "Failed to build $PRG!" >&2
-	exit
+	exit 1
 }
 
 echo "Installing $1..."
@@ -43,7 +43,7 @@ echo "Installing $1..."
 	
 } || {
 	echo "Failed to install $PRG!" >&2
-	exit
+	exit 1
 }
 
 echo "Done"

@@ -51,19 +51,19 @@ if [ -z "$2" ]; then
 	}
 fi
 
-echo "Building GCC..."
+echo "Building libgcc..."
 {
-	make all-gcc
+	make all-target-libgcc
 } || {
-	echo "Failed to build GCC!" >&2
+	echo "Failed to build libgcc!" >&2
 	exit 1
 }
 
-echo "Installing GCC..."
+echo "Installing libgcc..."
 {
-	make install-gcc
+	make install-target-libgcc
 } || {
-	echo "Failed to build GCC!" >&2
+	echo "Failed to build libgcc!" >&2
 	exit 1
 }
 

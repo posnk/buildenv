@@ -1,0 +1,24 @@
+#!/bin/bash
+# Builds a toolchain and c library for a target
+# Usage: mktoolchain <target>
+
+TARGET=$1
+
+if [ -z "$TARGET" ]; then
+	echo "Usage: mktoolchain <target>" >&2
+	exit 1
+fi
+
+echo "Building toolchain for target $TARGET"
+
+{
+	buildhostbinutils "$TARGET" &&
+	buildhostgcc "$TARGET" &&
+	buildnewlib "$TARGET" &&
+	buildhostgcc "$TARGET" &&
+	buildhostlibgcc "$TARGET" nocfg 
+} || {
+	echo "Failed to build toolchain" >&2
+	exit 1 
+}
+

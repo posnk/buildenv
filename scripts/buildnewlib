@@ -20,12 +20,12 @@ echo newlib package: $PKG_NEWLIB
 
 if [ ! -d "$SDIR_NEWLIB" ]; then
         echo "No such package: $PKG_NEWLIB" >&2
-        exit
+        exit 1
 fi
 
 if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
         echo "No such target: $TARGET" >&2
-        exit
+        exit 1
 fi
 
 source "$TARG_CFGNEWLIB"
@@ -43,7 +43,7 @@ if [ -z "$2" ]; then
 				$NEWLIB_CFG
 	} || {
 		echo "Failed to configure newlib!" >&2
-		exit
+		exit 1
 	}
 fi
 
@@ -52,7 +52,7 @@ echo "Building newlib..."
 	make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
 } || {
 	echo "Failed to build newlib!" >&2
-	exit
+	exit 1
 }
 
 echo "Installing newlib..."
@@ -63,7 +63,7 @@ echo "Installing newlib..."
 	
 } || {
 	echo "Failed to install newlib!" >&2
-	exit
+	exit 1
 }
 
 echo "Done"
