@@ -4,6 +4,7 @@
 
 INSTALLDIR=$1
 BUILDENVGIT="https://github.com/posnk/buildenv.git"
+PATCHESGIT="https://github.com/posnk/patches.git"
 
 if [ -z "$INSTALLDIR" ]; then
 	echo "Usage: installenv <install dir>" >&2
@@ -49,10 +50,20 @@ echo "Cloning build environment from git..."
 	exit
 }
 
+echo "Cloning patch collection from git..."
+{
+	cd src &&
+	git clone "$PATCHESGIT" &&
+	cd ..
+} || {
+	echo "Could not clone patches!" >&2
+	exit
+
 echo "Installing build environment binaries and configuration..."
 {
 	ln -s src/buildenv/scripts bin &&
-	ln -s src/buildenv/config etc
+	ln -s src/buildenv/config etc &&
+	ln -s src/patches patch &&
 } || {
 	echo "Could not install build environment!"
 	exit
