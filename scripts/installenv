@@ -35,7 +35,8 @@ echo "Creating directory structure..."
 	mkdir tmp &&
 	mkdir toolchains  &&
 	mkdir var &&
-	mkdir var/pkgs
+	mkdir var/pkgs &&
+	mkdir var/targets 
 } || {
 	echo "Could not create directory structure!" >&2
 	exit
