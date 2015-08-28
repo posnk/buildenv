@@ -6,6 +6,12 @@
 
 PKGMGR_DLTOKEN="$POSBUILDROOT/var/pkgs/$PKGINFO_NAME""_dl"
 
+if [ "$PKGMGR_FETCHTYPE" = "meta" ]; then
+
+	exit 0
+
+fi
+
 if [  -f "$PKGMGR_DLTOKEN" ]; then 
 	PKGMGR_DLVERSION=`cat $PKGMGR_DLTOKEN`
 	if [ "$PKGMGR_DLVERSION" != "$PKGINFO_VERSION" ]; then
