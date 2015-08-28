@@ -3,9 +3,15 @@
 # written by Peter Bosch <peterbosc@gmail.com>
 
 PKGMGR_TARGET="$1"
+PKGMGR_TARGETTOKEN="$POSBUILDROOT/var/targets/$PKGMGR_TARGET"
 PKGMGR_DEPFILE="/tmp/postoolchain.dep"
 
-if [ ( -f "$PKGMGR_TARGETTOKEN" ) -a ( "$PKGMGR_FORCETGT" != "yes" ) ]; then
+if [ -z "$PKGMGR_TARGET" ]; then
+	echo "Usage: pkg_mktarget <target>"
+	exit 255
+fi
+
+if [ -f "$PKGMGR_TARGETTOKEN" -a "$PKGMGR_FORCETGT" != "yes" ]; then
 
 	echo "Target is already installed"
 	echo "In order to force a reinstall of the target, run:"
@@ -14,11 +20,37 @@ if [ ( -f "$PKGMGR_TARGETTOKEN" ) -a ( "$PKGMGR_FORCETGT" != "yes" ) ]; then
 
 fi
 
-echo "Creating target $PKGMGR_TARGET ..."
+echo "Downloading toolchain sources..."
 
-pkg_gendep meta/hosttools "$PKGMGR_DEPFILE"
+pkg_gendep meta/hosttools "$PKGMGR_DEPFILE" || {
+	echo "Error resolving dependencies!"
+	exit 255
+}
 
-pkg_askdep "downloaded" "$PKGMGR_DEPFILE"
+pkg_askdep "downloaded" "$PKGMGR_DEPFILE" || {
+	exit 255
+}
 
+pkg_dodep "$PKGMGR_DEPFILE" "pkg_get" || {
+	echo "Failed to download all dependencies!"
+	exit 255
+}
 
+rm "$PKGMGR_DEPFILE" || {
+	echo "Warning: failed to remove temporary file: $PKGMGR_TARGETTOKEN"
+}
+
+mkroot "$PKGMGR_TARGET" || {
+	exit 255
+}
+
+mktoolchain "$PKGMGR_TARGET" || {
+	exit 255
+}
+
+touch "$PKGMGR_TARGETTOKEN"
+
+echo "Successfully installed target!"
+
+exit 0
 
