@@ -29,12 +29,14 @@ cd "$SYSROOT_TARGET" || {
 	mkdir lib &&
 	mkdir usr &&
 	mkdir etc &&
+	mkdir var &&
 	mkdir usr/src &&
 	mkdir usr/lib &&
 	mkdir usr/share &&
 	mkdir usr/include &&
 	mkdir usr/bin &&
-	mkdir usr/sbin
+	mkdir usr/sbin &&
+	mkdir var/pkgs
 } || {
 	echo "Failed to populate sysroot directory tree!" >&2
 	exit
