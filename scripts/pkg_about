@@ -1,0 +1,9 @@
+#!/bin/bash
+# posnk package manager, package description module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+. pkg_load
+
+echo Package description for: $PKGINFO_NAME
+echo --------------------------------------
+echo $PKGINFO_DESC

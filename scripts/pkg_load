@@ -1,0 +1,25 @@
+#!/bin/bash
+# posnk package manager, package info load module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+PKGMGR_PKG="$1"
+PKGMGR_PKGDIR="$POSBUILDROOT/pkgs/$PKGMGR_PKG" 
+PKGMGR_PKGCFG="$PKGMGR_PKGDIR/pkgcfg"
+
+if [ ! -n "$PKGMGR_PKG" ]; then
+ 
+	echo "$0: no package specified" > @2
+	echo "Usage: $0 <pkg>"
+	exit 255
+
+fi
+
+if [ ! -f "$PKGMGR_PKGCFG" ]; then
+
+	echo "$0: package $PKGMGR_PKG not found"
+	exit 255
+
+fi
+
+. $PKGMGR_PKGCFG
+

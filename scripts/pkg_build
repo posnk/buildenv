@@ -1,0 +1,91 @@
+#!/bin/bash
+# posnk package manager, package download module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+. pkg_load
+
+PKGMGR_TCPREFIX="$POSBUILDROOT/toolchains"
+PKGMGR_TARGET="$PKGENV_TARGET"
+PATH="$TCPREFIX/bin:$PATH"
+PKGMGR_CFGPKG="$PKGMGR_PKGDIR/targets/$TARGET/configure_opts"
+BDIR_PKG="build/$PKG-$TARGET"
+SDIR_PKG="$POSBUILDROOT/src3m/$PKG"
+PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$TARGET"
+PKGMGR_INTOKEN="$TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
+PKGMGR_CFGTOKEN="$TRGROOT/var/pkgs
+
+if [ ( -f "$PKGMGR_INTOKEN" ) -a ( "$PKGMGR_FORCEIN" != "yes" )]; then
+	echo "Package $1 already installed"
+	echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
+	exit 0
+fi
+
+if [ ! -d "$PKGMGR_TRGROOT" ]; then
+	echo "No installation root found for target $PKGMGR_TARGET"
+	exit 255
+fi
+
+
+if [ "$PKGMGR_VERBOSE" = "yes" ]; then
+
+	echo "Installing package: $PKGINFO_NAME"
+	echo "Build type: $PKGINFO_BUILDTYPE"
+
+fi
+
+if [ "$PKG_BUILDTYPE" = "autotools" ]; then
+
+	if [ "$PKGMGR_VERBOSE" = "yes" ]; then
+		echo "Doing autotools build"
+		echo "Download URL: $PKGINFO_FETCHURL"
+	fi	
+
+	if [ ! -f "$PKGMGR_CFGPKG" ]; then
+		echo "Package $1 does not support target $PKGMGR_TARGET"
+		exit 255
+	fi
+	
+	. $PKGMGR_CFGPKG
+	
+	echo "Downloading package $PKGINFO_NAME ..."
+	fetchpkg "$PKGINFO_FETCHOPTS" "$PKGINFO_FETCHURL" || {
+		echo "Could not fetch package!"
+		exit 255
+	}
+
+
+elif [ "$PKG_FETCHTYPE" = "git" ]; then
+
+	echo "Cloning package $PKGINFO_NAME ..."
+	# TODO: Implement git packages
+
+else
+
+	echo "Invalid package fetch type!"
+	exit 255
+
+fi
+
+if [ "$PKG_DOPATCH" = "yes"]; then
+
+	echo "Patching upstream package..."
+
+	patchpkg "$PKGINFO_NAME" || {
+		echo "Could not patch package!"
+		exit 255
+	}
+
+else
+
+	editpkg "$PKGINFO_NAME"	|| {
+		echo "Could not instantiate local clone..."
+		exit 255
+	}
+
+fi
+
+touch $PKGMGR_DLTOKEN
+
+echo Package downloaded!
+
+exit 0

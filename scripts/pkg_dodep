@@ -1,0 +1,19 @@
+#!/bin/bash
+# posnk package manager, package dependency walk module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+. pkg_load
+
+PKGMGR_DEPCMD="$2"
+
+for PKGMGR_DEPNAME in $PKGINFO_DEPS
+do
+
+	$PKGMGR_DEPCMD $PKGMGR_DEPNAME || {
+		echo "Dependency command $PKGMGR_DEPCMD failed for $PKGMGR_DEPNAME"
+		exit 255
+	}
+
+done
+
+exit 0

@@ -33,7 +33,9 @@ echo "Creating directory structure..."
 	mkdir patch &&
 	mkdir sysroot &&
 	mkdir tmp &&
-	mkdir toolchains 
+	mkdir toolchains  &&
+	mkdir var &&
+	mkdir var/pkgs
 } || {
 	echo "Could not create directory structure!" >&2
 	exit
@@ -59,4 +61,4 @@ echo "Installing build environment binaries and configuration..."
 }
 
 echo "Build environment has been installed in $INSTALLDIR"
-echo "Invoke \"$INSTALLDIR/bin/startenv\" to launch the build environment"
+echo "From \"$INSTALLDIR\" invoke ./bin/startenv to launch the build environment"
