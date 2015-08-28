@@ -10,11 +10,11 @@ if [  -f "$PKGMGR_DLTOKEN" ]; then
 	PKGMGR_DLVERSION=`cat $PKGMGR_DLTOKEN`
 	if [ "$PKGMGR_DLVERSION" != "$PKGINFO_VERSION" ]; then
 
-		echo "Upgrading $PKGINFO_NAME from $PKGMGR_DLVERSION \
+		echo "Upgrading $PKGMGR_PKG from $PKGMGR_DLVERSION \
 to $PKGINFO_VERSION"
 
 	elif [ "$PKGMGR_FORCEDL" != "yes" ]; then 
-		echo "Package $PKGINFO_NAME already download!"
+		echo "Package $PKGMGR_PKG already download!"
 		echo "Run PKGMGR_FORCEDL=yes pkg_get $1 to force download"
 		exit 0
 	fi
@@ -44,7 +44,7 @@ if [ "$PKGINFO_FETCHTYPE" = "dist" ]; then
 
 elif [ "$PKGINFO_FETCHTYPE" = "git" ]; then
 
-	echo "Cloning package $PKGINFO_NAME ..."
+	echo "Cloning package $PKGINFO_PKG ..."
 	# TODO: Implement git packages
 
 else
@@ -54,16 +54,51 @@ else
 
 fi
 
-if [ "$PKG_DOPATCH" = "yes"]; then
+if [ "$PKG_PATCHTYPE" = "old"]; then
 
 	echo "Patching upstream package..."
+
+	if [ -d "$POSBUILDROOT/src3m/$PKGINFO_NAME" ]; then
+		echo "Removing old patched sources..."
+		rm -r "$POSBUILDROOT/src3m/$PKGINFO_NAME" || {
+			echo "Could not remove old patched sources for package $PKGMGR_PKG"
+			exit 255
+		}
+	fi
 
 	patchpkg "$PKGINFO_NAME" || {
 		echo "Could not patch package!"
 		exit 255
 	}
 
-else
+elif [ "$PKG_PATCHTYPE" = "pkg" ]; then
+
+	echo "Patching upstream package..."
+
+	if [ ! -d "$POSBUILDROOT/src3p/$PKGINFO_NAME" ]; then
+		echo "Package $PKGMGR_PKG specified an incorrect PKGINFO_NAME!"
+		exit 255
+	fi
+
+	if [ ! -d "$PKGMGR_PKGDIR/posnk.patch" ]; then
+		echo "Missing patchfile for package $PKGMGR_PKG !"
+		exit 255
+	fi
+	
+	if [ -d "$POSBUILDROOT/src3m/$PKGINFO_NAME" ]; then
+		echo "Removing old patched sources..."
+		rm -r "$POSBUILDROOT/src3m/$PKGINFO_NAME" || {
+			echo "Could not remove old patched sources for package $PKGMGR_PKG"
+			exit 255
+		}
+	fi
+
+	cd "$POSBUILDROOT/src3m"
+
+	cp -r "../src3p/$PKGINFO_NAME" "./$PKGINFO_NAME"
+	patch -p0 < "$PKGMGR_PKGDIR/posnk.patch"	
+
+elif [ "$PKG_PATCHTYPE" = "upstream" ]; then
 
 	editpkg "$PKGINFO_NAME"	|| {
 		echo "Could not instantiate local clone..."
