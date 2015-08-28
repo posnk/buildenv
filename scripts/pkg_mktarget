@@ -1,0 +1,24 @@
+#!/bin/bash
+# posnk package manager, target creation module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+PKGMGR_TARGET="$1"
+PKGMGR_DEPFILE="/tmp/postoolchain.dep"
+
+if [ ( -f "$PKGMGR_TARGETTOKEN" ) -a ( "$PKGMGR_FORCETGT" != "yes" ) ]; then
+
+	echo "Target is already installed"
+	echo "In order to force a reinstall of the target, run:"
+	echo "PKGMGR_FORCETGT=yes pkg_mktarget $1"
+	exit 255
+
+fi
+
+echo "Creating target $PKGMGR_TARGET ..."
+
+pkg_gendep meta/hosttools "$PKGMGR_DEPFILE"
+
+pkg_askdep "downloaded" "$PKGMGR_DEPFILE"
+
+
+

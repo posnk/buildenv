@@ -1,0 +1,33 @@
+#!/bin/bash
+# posnk package manager, package dependency walk module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+
+PKGMGR_DEPFILE="$2"
+PKGMGR_ACTION="$1"
+
+echo "The following package(s) will be $PKGMGR_ACTION :";
+echo
+
+PKGMGR_DEPLIST=`cat $PKGMGR_DEPFILE`
+
+for PKGMGR_DEPNAME in $PKGMGR_DEPLIST
+do
+
+	echo -n " $PKGMGR_DEPNAME"
+
+done
+
+echo
+	echo
+
+read -p "Do you want to proceed [yes/NO]? " PKGMGR_CONFIRM
+
+if [ "$PKGMGR_CONFIRM" != "yes" ]; then
+
+	echo "User aborted command!"
+	exit 255
+
+fi
+
+exit 0
