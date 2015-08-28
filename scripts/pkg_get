@@ -13,7 +13,7 @@ if [  -f "$PKGMGR_DLTOKEN" ]; then
 		echo "Upgrading $PKGINFO_NAME from $PKGMGR_DLVERSION \
 to $PKGINFO_VERSION"
 
-	elif [ $PKGMGR_FORCEDL != "yes" ]; then 
+	elif [ "$PKGMGR_FORCEDL" != "yes" ]; then 
 		echo "Package $PKGINFO_NAME already download!"
 		echo "Run PKGMGR_FORCEDL=yes pkg_get $1 to force download"
 		exit 0
