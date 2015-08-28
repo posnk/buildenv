@@ -14,7 +14,7 @@ do
 
 	grep -q "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
 	
-		pkg_dodep "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
+		pkg_gendep "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
 			exit 255
 		}
 
