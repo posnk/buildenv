@@ -4,14 +4,20 @@
 
 . pkg_load
 
-PKGMGR_DEPCMD="$2"
+PKGMGR_DEPFILE="$2"
+
+echo "Resolving dependencies for $PKGMGR_PKG ..."
+echo "$PKGMGR_PKG" > "$PKGMGR_DEPFILE"
 
 for PKGMGR_DEPNAME in $PKGINFO_DEPS
 do
 
-	$PKGMGR_DEPCMD $PKGMGR_DEPNAME || {
-		echo "Dependency command $PKGMGR_DEPCMD failed for $PKGMGR_DEPNAME"
-		exit 255
+	grep -q "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
+	
+		pkg_dodep "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
+			exit 255
+		}
+
 	}
 
 done
