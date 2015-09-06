@@ -4,6 +4,7 @@
 
 INSTALLDIR=$1
 BUILDENVGIT="https://github.com/posnk/buildenv.git"
+PKGSGIT="https://github.com/posnk/pkgs.git"
 PATCHESGIT="https://github.com/posnk/patches.git"
 
 if [ -z "$INSTALLDIR" ]; then
