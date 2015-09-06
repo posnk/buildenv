@@ -57,6 +57,10 @@ pkg_mkinst lib/newlib-2.1.0
 touch "$PKGMGR_TARGETTOKEN"
 
 echo "Successfully installed target!"
+echo "To select this target, enter:"
+echo "export PKGENV_TARGET=$PKGMGR_TARGET"
+echo "To set it as the default, enter:"
+echo "echo $PKGMGR_TARGET > $POSBUILDROOT/etc/deftarget"
 
 exit 0
 

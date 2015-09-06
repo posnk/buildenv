@@ -1,4 +1,5 @@
 #!/bin/bash
 export POSBUILDROOT=`pwd`
 export PATH=$PATH:$POSBUILDROOT/bin
+export PKGENV_TARGET=`cat $POSBUILDROOT/etc/deftarget`
 zsh
