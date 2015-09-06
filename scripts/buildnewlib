@@ -28,7 +28,7 @@ if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
         exit 1
 fi
 
-source "$TARG_CFGNEWLIB"
+. "$TARG_CFGNEWLIB"
 
 if [ ! -d "$BDIR_NEWLIB" ]; then
 	echo "Creating build directory for newlib: " $BDIR_NEWLIB

@@ -22,6 +22,10 @@ fi
 
 echo "Downloading toolchain sources..."
 
+if [ -f "$PKGMGR_DEPFILE" ]; then
+	rm "$PKGMGR_DEPFILE"
+fi
+
 pkg_gendep meta/hosttools "$PKGMGR_DEPFILE" || {
 	echo "Error resolving dependencies!"
 	exit 255
@@ -47,6 +51,8 @@ mkroot "$PKGMGR_TARGET" || {
 mktoolchain "$PKGMGR_TARGET" || {
 	exit 255
 }
+
+pkg_mkinst lib/newlib-2.1.0
 
 touch "$PKGMGR_TARGETTOKEN"
 

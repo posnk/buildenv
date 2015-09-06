@@ -7,14 +7,14 @@
 PKGMGR_TCPREFIX="$POSBUILDROOT/toolchains"
 PKGMGR_TARGET="$PKGENV_TARGET"
 PATH="$TCPREFIX/bin:$PATH"
-PKGMGR_CFGPKG="$PKGMGR_PKGDIR/targets/$TARGET/configure_opts"
-BDIR_PKG="build/$PKG-$TARGET"
-SDIR_PKG="$POSBUILDROOT/src3m/$PKG"
-PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$TARGET"
-PKGMGR_INTOKEN="$TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
-PKGMGR_CFGTOKEN="$TRGROOT/var/pkgs
+PKGMGR_CFGPKG="$PKGMGR_PKGDIR/targets/$PKGMGR_TARGET/configure_opts"
+BDIR_PKG="build/$PKGINFO_NAME-$PKGMGR_TARGET"
+SDIR_PKG="$POSBUILDROOT/src3m/$PKGINFO_NAME"
+PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$PKGMGR_TARGET"
+PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
+PKGMGR_CFGTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_cfg"
 
-if [ ( -f "$PKGMGR_INTOKEN" ) -a ( "$PKGMGR_FORCEIN" != "yes" )]; then
+if [ ( -f "$PKGMGR_INTOKEN" )  -a ( "$PKGMGR_FORCEIN" != "yes" )]; then
 	echo "Package $1 already installed"
 	echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
 	exit 0
@@ -47,45 +47,80 @@ if [ "$PKG_BUILDTYPE" = "autotools" ]; then
 	
 	. $PKGMGR_CFGPKG
 	
-	echo "Downloading package $PKGINFO_NAME ..."
-	fetchpkg "$PKGINFO_FETCHOPTS" "$PKGINFO_FETCHURL" || {
-		echo "Could not fetch package!"
+	if [ ! -d "$BDIR_PKG" ]; then
+		echo "Creating build directory for $PKGMGR_PKG ..."
+		mkdir "$BDIR_PKG" || {
+			echo "Failed to create build directory!"
+			exit 255
+		}
+	fi
+
+	echo "Configuring package $PKGMGR_PKG ..."
+
+	cd "$BDIR_PKG"
+	{
+		$SDIR_PKG/configure --host=$PKGMGR_TARGET --prefix="$PKGINFO_PREFIX" \
+			$PKG_CFG 
+	} || {
+		echo "Failed to configure package $PKGMGR_PKG !"
 		exit 255
 	}
 
+	echo "Building package $PKGMGR_PKG ..."
+	{
+		make tooldir="$PKGINFO_PREFIX" DESTDIR="$PKGMGR_TRGROOT" 
+	} || {
+		echo "Failed to build package $PKGMGR_PKG !"
+	}
 
-elif [ "$PKG_FETCHTYPE" = "git" ]; then
+elif [ "$PKG_BUILDTYPE" = "cmd" ]; then
 
-	echo "Cloning package $PKGINFO_NAME ..."
-	# TODO: Implement git packages
+	echo "Building package $PKGINFO_NAME ..."
+	{
+		$PKGINFO_BUILDCMD 
+	} || {
+		echo "Failed to build package $PKGMGR_PKG !"
+		exit 255
+	}
+
+elif [ "$PKG_BUILDTYPE" = "pos" ]; then
+
+	echo "Building package $PKGMGR_PKG ..."
+
+	BDIR_PRG="$POSBUILDROOT/build/$PKGINFO_NAME-$PKGMGR_TARGET"
+	SDIR_PRG="$POSBUILDROOT/src/$PKGINFO_NAME"
+	TCPREFIX="$POSBUILDROOT/toolchains"
+
+	if [ ! -d "$BDIR_PRG" ]; then
+		echo "Creating build directory for $PKGMGR_PKG"
+		mkdir "$BDIR_PRG"
+	fi
+
+	cd "$SDIR_PRG"
+
+	echo "Building $PKGMGR_PRG ..."
+	
+	{
+		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT"
+	} || {
+		echo "Failed to build $PKGMGR_PKG!"
+		exit 
+	}
+	
+	echo "Installing $PKGMGR_PRG ..."
+	{
+		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT" install
+	} || {
+		echo "Failed to install $PKGMGR_PKG!"
+	}
 
 else
 
-	echo "Invalid package fetch type!"
+	echo "Invalid package build type!"
 	exit 255
 
 fi
 
-if [ "$PKG_DOPATCH" = "yes"]; then
-
-	echo "Patching upstream package..."
-
-	patchpkg "$PKGINFO_NAME" || {
-		echo "Could not patch package!"
-		exit 255
-	}
-
-else
-
-	editpkg "$PKGINFO_NAME"	|| {
-		echo "Could not instantiate local clone..."
-		exit 255
-	}
-
-fi
-
-touch $PKGMGR_DLTOKEN
-
-echo Package downloaded!
+echo Package installed.
 
 exit 0

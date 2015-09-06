@@ -1,0 +1,13 @@
+#!/bin/bash
+# posnk package manager, package download module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+. pkg_load
+
+PKGMGR_TARGET="$PKGENV_TARGET"
+PATH="$TCPREFIX/bin:$PATH"
+PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
+
+echo "$PKGINFO_VERSION" > "$PKGMGR_INTOKEN"
+
+exit 0

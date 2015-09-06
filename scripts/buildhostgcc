@@ -32,7 +32,7 @@ if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
         exit 1
 fi
 
-source "$TARG_CFGGCC"
+. "$TARG_CFGGCC"
 
 if [ ! -d "$BDIR_GCC" ]; then
 	echo "Creating build directory for binutils: " $BDIR_GCC

@@ -6,7 +6,7 @@
 
 PKGMGR_DLTOKEN="$POSBUILDROOT/var/pkgs/$PKGINFO_NAME""_dl"
 
-if [ "$PKGMGR_FETCHTYPE" = "meta" ]; then
+if [ "$PKGINFO_FETCHTYPE" = "meta" ]; then
 
 	exit 0
 
@@ -35,23 +35,34 @@ fi
 
 if [ "$PKGINFO_FETCHTYPE" = "dist" ]; then
 
-	if [ "$PKGMGR_VERBOSE" = "yes" ]; then
-		echo "Doing dist fetch"
-		echo "Extraction options: $PKGINFO_FETCHOPTS"
-		echo "Download URL: $PKGINFO_FETCHURL"
-	fi	
+	if [ -d "$POSBUILDROOT/src3p/$PKGINFO_NAME" ]; then 
 
-	echo "Downloading package $PKGINFO_NAME ..."
-	fetchpkg "$PKGINFO_FETCHOPTS" "$PKGINFO_FETCHURL" || {
-		echo "Could not fetch package!"
-		exit 255
-	}
+		echo "Upstream source already downloaded"
+
+	else
+
+		if [ "$PKGMGR_VERBOSE" = "yes" ]; then
+			echo "Doing dist fetch"
+			echo "Extraction options: $PKGINFO_FETCHOPTS"
+			echo "Download URL: $PKGINFO_FETCHURL"
+		fi	
+
+		echo "Downloading package $PKGINFO_NAME ..."
+		fetchpkg "$PKGINFO_FETCHOPTS" "$PKGINFO_FETCHURL" || {
+			echo "Could not fetch package!"
+			exit 255
+		}
+
+	fi
 
 
 elif [ "$PKGINFO_FETCHTYPE" = "git" ]; then
 
 	echo "Cloning package $PKGINFO_PKG ..."
-	# TODO: Implement git packages
+
+	cd "$POSBUILDROOT/src"
+
+	git clone "$PKGINFO_GITURL"
 
 else
 
@@ -59,8 +70,7 @@ else
 	exit 255
 
 fi
-
-if [ "$PKG_PATCHTYPE" = "old"]; then
+if [ "$PKGINFO_PATCHTYPE" = "old" ]; then
 
 	echo "Patching upstream package..."
 
@@ -77,7 +87,7 @@ if [ "$PKG_PATCHTYPE" = "old"]; then
 		exit 255
 	}
 
-elif [ "$PKG_PATCHTYPE" = "pkg" ]; then
+elif [ "$PKGINFO_PATCHTYPE" = "pkg" ]; then
 
 	echo "Patching upstream package..."
 
@@ -86,7 +96,7 @@ elif [ "$PKG_PATCHTYPE" = "pkg" ]; then
 		exit 255
 	fi
 
-	if [ ! -d "$PKGMGR_PKGDIR/posnk.patch" ]; then
+	if [ ! -f "$PKGMGR_PKGDIR/posnk.patch" ]; then
 		echo "Missing patchfile for package $PKGMGR_PKG !"
 		exit 255
 	fi
@@ -104,7 +114,7 @@ elif [ "$PKG_PATCHTYPE" = "pkg" ]; then
 	cp -r "../src3p/$PKGINFO_NAME" "./$PKGINFO_NAME"
 	patch -p0 < "$PKGMGR_PKGDIR/posnk.patch"	
 
-elif [ "$PKG_PATCHTYPE" = "upstream" ]; then
+elif [ "$PKGINFO_PATCHTYPE" = "upstream" ]; then
 
 	editpkg "$PKGINFO_NAME"	|| {
 		echo "Could not instantiate local clone..."
