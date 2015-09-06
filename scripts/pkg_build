@@ -6,7 +6,7 @@
 
 PKGMGR_TCPREFIX="$POSBUILDROOT/toolchains"
 PKGMGR_TARGET="$PKGENV_TARGET"
-PATH="$TCPREFIX/bin:$PATH"
+PATH="$PKGMGR_TCPREFIX/bin:$PATH"
 PKGMGR_CFGPKG="$PKGMGR_PKGDIR/targets/$PKGMGR_TARGET/configure_opts"
 BDIR_PKG="build/$PKGINFO_NAME-$PKGMGR_TARGET"
 SDIR_PKG="$POSBUILDROOT/src3m/$PKGINFO_NAME"
@@ -14,7 +14,7 @@ PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$PKGMGR_TARGET"
 PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
 PKGMGR_CFGTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_cfg"
 
-if [ ( -f "$PKGMGR_INTOKEN" )  -a ( "$PKGMGR_FORCEIN" != "yes" )]; then
+if [ -f "$PKGMGR_INTOKEN" -a "$PKGMGR_FORCEIN" != "yes" ]; then
 	echo "Package $1 already installed"
 	echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
 	exit 0
@@ -33,7 +33,7 @@ if [ "$PKGMGR_VERBOSE" = "yes" ]; then
 
 fi
 
-if [ "$PKG_BUILDTYPE" = "autotools" ]; then
+if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 
 	if [ "$PKGMGR_VERBOSE" = "yes" ]; then
 		echo "Doing autotools build"
@@ -73,7 +73,7 @@ if [ "$PKG_BUILDTYPE" = "autotools" ]; then
 		echo "Failed to build package $PKGMGR_PKG !"
 	}
 
-elif [ "$PKG_BUILDTYPE" = "cmd" ]; then
+elif [ "$PKGINFO_BUILDTYPE" = "cmd" ]; then
 
 	echo "Building package $PKGINFO_NAME ..."
 	{
@@ -83,7 +83,7 @@ elif [ "$PKG_BUILDTYPE" = "cmd" ]; then
 		exit 255
 	}
 
-elif [ "$PKG_BUILDTYPE" = "pos" ]; then
+elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 
 	echo "Building package $PKGMGR_PKG ..."
 
@@ -98,7 +98,7 @@ elif [ "$PKG_BUILDTYPE" = "pos" ]; then
 
 	cd "$SDIR_PRG"
 
-	echo "Building $PKGMGR_PRG ..."
+	echo "Building $PKGMGR_PKG ..."
 	
 	{
 		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT"
@@ -107,7 +107,7 @@ elif [ "$PKG_BUILDTYPE" = "pos" ]; then
 		exit 
 	}
 	
-	echo "Installing $PKGMGR_PRG ..."
+	echo "Installing $PKGMGR_PKG ..."
 	{
 		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT" install
 	} || {

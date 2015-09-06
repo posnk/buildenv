@@ -31,7 +31,6 @@ echo "Creating directory structure..."
 	mkdir src &&
 	mkdir src3m &&
 	mkdir src3p &&
-	mkdir patch &&
 	mkdir sysroot &&
 	mkdir tmp &&
 	mkdir toolchains  &&
