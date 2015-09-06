@@ -27,6 +27,7 @@ cd "$INSTALLDIR"
 
 echo "Creating directory structure..."
 {
+	mkdir log &&
 	mkdir build &&
 	mkdir src &&
 	mkdir src3m &&
