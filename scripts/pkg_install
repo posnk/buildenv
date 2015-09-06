@@ -1,0 +1,59 @@
+#!/bin/bash
+# posnk package manager, target creation module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+PKGMGR_TARGET="$PKGENV_TARGET"
+PKGMGR_PKG="$1"
+PKGMGR_TARGETTOKEN="$POSBUILDROOT/var/targets/$PKGMGR_TARGET"
+PKGMGR_DEPFILE="/tmp/posinstall.dep"
+
+if [ -z "$PKGMGR_PKG" ]; then
+	echo "Usage: pkg_install <package>"
+	exit 255
+fi
+
+if [ -z "$PKGMGR_TARGET" ]; then
+	echo "Target not set, please set PKGENV_TARGET"
+	exit 255
+fi
+
+if [ ! -f "$PKGMGR_TARGETTOKEN" ]; then
+
+	echo "Target has not been installed yet"
+	echo "In order to install the target, run:"
+	echo "pkg_mktarget $PKGMGR_TARGET"
+	exit 255
+
+fi
+
+if [ -f "$PKGMGR_DEPFILE" ]; then
+	rm "$PKGMGR_DEPFILE"
+fi
+
+pkg_gendep "$PKGMGR_PKG" "$PKGMGR_DEPFILE" || {
+	echo "Error resolving dependencies!"
+	exit 255
+}
+
+pkg_askdep "installed" "$PKGMGR_DEPFILE" || {
+	exit 255
+}
+
+pkg_dodep "$PKGMGR_DEPFILE" "pkg_get" || {
+	echo "Failed to download all dependencies!"
+	exit 255
+}
+
+pkg_dodep "$PKGMGR_DEPFILE" "pkg_build" || {
+	echo "Failed to build all packages!"
+	exit 255
+}
+
+rm "$PKGMGR_DEPFILE" || {
+	echo "Warning: failed to remove temporary file: $PKGMGR_TARGETTOKEN"
+}
+
+echo "Successfully installed package!"
+
+exit 0
+

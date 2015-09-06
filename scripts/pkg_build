@@ -114,12 +114,18 @@ elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 		echo "Failed to install $PKGMGR_PKG!"
 	}
 
+elif [ "$PKGINFO_BUILDTYPE" = "meta" ]; then
+	
+	exit 0
+
 else
 
 	echo "Invalid package build type!"
 	exit 255
 
 fi
+
+pkg_mkinst $PKGMGR_PKG
 
 echo Package installed.
 
