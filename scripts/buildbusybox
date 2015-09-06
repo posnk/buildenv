@@ -29,7 +29,7 @@ if [ ! -d "$BDIR_PRG" ]; then
 fi
 
 echo "Initializing config..."
-cp "$POSNKBUILDROOT/patch/posnk_busybox_config" "$BDIR_PRG/.config" || {
+cp "$POSBUILDROOT/patch/posnk_busybox_config" "$BDIR_PRG/.config" || {
 	echo "Could not initialize busybox config!"
 	exit 1
 }
@@ -47,7 +47,7 @@ echo "Building $PRG..."
 echo "Installing $PRG..."
 {
 #	make ARCH=$ARCH CROSS_COMPILE=$TARGET- O="$BDIR_PRG/" DESTDIR="$POSBUILDROOT/sysroot/$TARGET" install
-	install "$BDIR_PKG/busybox" "$POSBUILDROOT/sysroot/$TARGET/sbin/busybox"	
+	install "$BDIR_PRG/busybox" "$POSBUILDROOT/sysroot/$TARGET/sbin/busybox"	
 } || {
 	echo "Failed to install $PRG!" >&2
 	exit

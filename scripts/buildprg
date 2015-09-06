@@ -12,6 +12,10 @@ PATH="$TCPREFIX/bin:$PATH"
 BDIR_PRG="$POSBUILDROOT/build/$PRG-$TARGET"
 SDIR_PRG="$POSBUILDROOT/src/$PRG"
 
+export PKG_CONFIG_LIBDIR=$POSBUILDROOT/sysroot/$TARGET/usr/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$POSBUILDROOT/sysroot/$TARGET
+export PKG_CONFIG_PATH=$PKG_CONFIG_LIBDIR
+
 if [ ! -d "$SDIR_PRG" ]; then
         echo "No such program: $PRG" >&2
         exit 1

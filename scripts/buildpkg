@@ -14,6 +14,10 @@ TARG_CFGPKG="$POSBUILDROOT/etc/targets/$TARGET/$PKG""_configure"
 BDIR_PKG="build/$PKG-$TARGET"
 SDIR_PKG="$POSBUILDROOT/src3m/$PKG"
 
+export PKG_CONFIG_LIBDIR=$POSBUILDROOT/sysroot/$TARGET/usr/lib/pkgconfig
+export PKG_CONFIG_SYSROOT_DIR=$POSBUILDROOT/sysroot/$TARGET
+export PKG_CONFIG_PATH=$PKG_CONFIG_LIBDIR
+
 if [ ! -d "$SDIR_PKG" ]; then
         echo "No such package: $PKG" >&2
         exit 1
@@ -42,18 +46,24 @@ if [ -z "$3" ]; then
 		exit 1
 	}
 fi
+if [ -z "$4" ]; then
 
-echo "Building $PKG..."
-{
-	make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
-} || {
-	echo "Failed to build $PKG!" >&2
-	exit 1
-}
+	echo "Building $PKG..."
+	{
+		make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
+	} || {
+		echo "Failed to build $PKG!" >&2
+		exit 1
+	}
+fi
 
 echo "Installing $PKG..."
 {
-	make tooldir=$PREFIX install DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
+	make tooldir=$PREFIX install DESTDIR="$POSBUILDROOT/sysroot/$TARGET" &&
+	libtool -v --finish $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la &&
+	safe_pbr=$(printf '%s\n' "$POSBUILDROOT/sysroot/$TARGET" | sed 's/[[\.*/]/\\&/g; s/$$/\\&/; s/^^/\\&/') &&
+	sed -i -e "s/libdir='\/usr/libdir='$safe_pbr\/usr/" $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la &&
+	sed -i -e "s/\s\/usr/ $safe_pbr\/usr/" $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la 
 	
 } || {
 	echo "Failed to install $PKG!" >&2

@@ -61,12 +61,13 @@ echo "Cloning patch collection from git..."
 } || {
 	echo "Could not clone patches!" >&2
 	exit
+}
 
 echo "Installing build environment binaries and configuration..."
 {
 	ln -s src/buildenv/scripts bin &&
 	ln -s src/buildenv/config etc &&
-	ln -s src/patches patch &&
+	ln -s src/patches patch
 } || {
 	echo "Could not install build environment!"
 	exit
