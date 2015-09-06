@@ -1,0 +1,126 @@
+#!/bin/bash
+# posnk package manager, package download module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+. pkg_load
+
+PKGMGR_TCPREFIX="$POSBUILDROOT/toolchains"
+PKGMGR_TARGET="$PKGENV_TARGET"
+PATH="$TCPREFIX/bin:$PATH"
+PKGMGR_CFGPKG="$PKGMGR_PKGDIR/targets/$PKGMGR_TARGET/configure_opts"
+BDIR_PKG="build/$PKGINFO_NAME-$PKGMGR_TARGET"
+SDIR_PKG="$POSBUILDROOT/src3m/$PKGINFO_NAME"
+PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$PKGMGR_TARGET"
+PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
+PKGMGR_CFGTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_cfg"
+
+if [ ( -f "$PKGMGR_INTOKEN" )  -a ( "$PKGMGR_FORCEIN" != "yes" )]; then
+	echo "Package $1 already installed"
+	echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
+	exit 0
+fi
+
+if [ ! -d "$PKGMGR_TRGROOT" ]; then
+	echo "No installation root found for target $PKGMGR_TARGET"
+	exit 255
+fi
+
+
+if [ "$PKGMGR_VERBOSE" = "yes" ]; then
+
+	echo "Installing package: $PKGINFO_NAME"
+	echo "Build type: $PKGINFO_BUILDTYPE"
+
+fi
+
+if [ "$PKG_BUILDTYPE" = "autotools" ]; then
+
+	if [ "$PKGMGR_VERBOSE" = "yes" ]; then
+		echo "Doing autotools build"
+		echo "Download URL: $PKGINFO_FETCHURL"
+	fi	
+
+	if [ ! -f "$PKGMGR_CFGPKG" ]; then
+		echo "Package $1 does not support target $PKGMGR_TARGET"
+		exit 255
+	fi
+	
+	. $PKGMGR_CFGPKG
+	
+	if [ ! -d "$BDIR_PKG" ]; then
+		echo "Creating build directory for $PKGMGR_PKG ..."
+		mkdir "$BDIR_PKG" || {
+			echo "Failed to create build directory!"
+			exit 255
+		}
+	fi
+
+	echo "Configuring package $PKGMGR_PKG ..."
+
+	cd "$BDIR_PKG"
+	{
+		$SDIR_PKG/configure --host=$PKGMGR_TARGET --prefix="$PKGINFO_PREFIX" \
+			$PKG_CFG 
+	} || {
+		echo "Failed to configure package $PKGMGR_PKG !"
+		exit 255
+	}
+
+	echo "Building package $PKGMGR_PKG ..."
+	{
+		make tooldir="$PKGINFO_PREFIX" DESTDIR="$PKGMGR_TRGROOT" 
+	} || {
+		echo "Failed to build package $PKGMGR_PKG !"
+	}
+
+elif [ "$PKG_BUILDTYPE" = "cmd" ]; then
+
+	echo "Building package $PKGINFO_NAME ..."
+	{
+		$PKGINFO_BUILDCMD 
+	} || {
+		echo "Failed to build package $PKGMGR_PKG !"
+		exit 255
+	}
+
+elif [ "$PKG_BUILDTYPE" = "pos" ]; then
+
+	echo "Building package $PKGMGR_PKG ..."
+
+	BDIR_PRG="$POSBUILDROOT/build/$PKGINFO_NAME-$PKGMGR_TARGET"
+	SDIR_PRG="$POSBUILDROOT/src/$PKGINFO_NAME"
+	TCPREFIX="$POSBUILDROOT/toolchains"
+
+	if [ ! -d "$BDIR_PRG" ]; then
+		echo "Creating build directory for $PKGMGR_PKG"
+		mkdir "$BDIR_PRG"
+	fi
+
+	cd "$SDIR_PRG"
+
+	echo "Building $PKGMGR_PRG ..."
+	
+	{
+		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT"
+	} || {
+		echo "Failed to build $PKGMGR_PKG!"
+		exit 
+	}
+	
+	echo "Installing $PKGMGR_PRG ..."
+	{
+		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT" install
+	} || {
+		echo "Failed to install $PKGMGR_PKG!"
+	}
+
+else
+
+	echo "Invalid package build type!"
+	exit 255
+
+fi
+
+echo Package installed.
+
+exit 0

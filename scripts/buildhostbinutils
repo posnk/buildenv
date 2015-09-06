@@ -19,8 +19,8 @@ if [ ! -d "$SDIR_BUTILS" ]; then
 	echo "No such package: $PKG_BUTILS" >&2
 	exit 1
 fi
-
-source "$TARG_CFGBUTILS"
+echo "$TARG_CFGBUTILS"
+. "$TARG_CFGBUTILS"
 
 if [ ! -d "$POSBUILDROOT/etc/targets/$TARGET" ]; then
 	echo "No such target: $TARGET" >&2

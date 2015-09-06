@@ -1,0 +1,22 @@
+#!/bin/bash
+# posnk package manager, package dependency execution module
+# written by Peter Bosch <peterbosc@gmail.com>
+#
+# Usage: pkg_dodep <dependency file> <command>
+
+PKGMGR_DEPFILE="$1"
+PKGMGR_DEPCMD="$2"
+
+PKGMGR_DEPLIST=`cat $PKGMGR_DEPFILE`
+
+
+for PKGMGR_DEPNAME in $PKGMGR_DEPLIST
+do
+
+	$PKGMGR_DEPCMD "$PKGMGR_DEPNAME" || {
+		exit 255
+	}
+
+done
+
+exit 0

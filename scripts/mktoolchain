@@ -16,7 +16,7 @@ echo "Building toolchain for target $TARGET"
 	buildhostgcc "$TARGET" &&
 	buildnewlib "$TARGET" &&
 	buildhostgcc "$TARGET" &&
-	buildhostlibgcc "$TARGET" nocfg 
+	buildlibgcc "$TARGET" nocfg 
 } || {
 	echo "Failed to build toolchain" >&2
 	exit 1 

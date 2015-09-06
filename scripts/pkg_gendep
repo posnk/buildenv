@@ -1,0 +1,25 @@
+#!/bin/bash
+# posnk package manager, package dependency walk module
+# written by Peter Bosch <peterbosc@gmail.com>
+
+. pkg_load
+
+PKGMGR_DEPFILE="$2"
+
+echo "Resolving dependencies for $PKGMGR_PKG ..."
+echo "$PKGMGR_PKG" >> "$PKGMGR_DEPFILE"
+
+for PKGMGR_DEPNAME in $PKGINFO_DEPS
+do
+
+	grep -q "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
+	
+		pkg_gendep "$PKGMGR_DEPNAME" "$PKGMGR_DEPFILE" || {
+			exit 255
+		}
+
+	}
+
+done
+
+exit 0
