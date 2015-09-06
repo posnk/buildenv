@@ -9,6 +9,7 @@ echo Starting GCC compilation for target $1
 
 PREFIX="$POSBUILDROOT/toolchains"
 TARGET=$1
+LOGDIR="$POSBUILDROOT/log/"
 PATH="$PREFIX/bin:$PATH"
 TARG_CFGGCC="$POSBUILDROOT/etc/targets/$TARGET/gcc_configure"
 TARG_CFGBUTILS="$POSBUILDROOT/etc/targets/$TARGET/binutils_configure"
@@ -35,7 +36,7 @@ fi
 . "$TARG_CFGGCC"
 
 if [ ! -d "$BDIR_GCC" ]; then
-	echo "Creating build directory for binutils: " $BDIR_GCC
+	echo "Creating build directory for gcc: " $BDIR_GCC
 	mkdir "$BDIR_GCC"
 fi
 
@@ -44,7 +45,7 @@ if [ -z "$2" ]; then
 	echo "Configuring GCC..."
 	{
 		$SDIR_GCC/configure --target=$TARGET --prefix="$PREFIX" \
-				$GCC_CFG
+				$GCC_CFG > "$LOGDIR/cfg_gcc"
 	} || {
 		echo "Failed to configure GCC!" >&2
 		exit 1
@@ -53,7 +54,7 @@ fi
 
 echo "Building GCC..."
 {
-	make all-gcc
+	make all-gcc > "$LOGDIR/make_gcc"
 } || {
 	echo "Failed to build GCC!" >&2
 	exit 1
@@ -61,7 +62,7 @@ echo "Building GCC..."
 
 echo "Installing GCC..."
 {
-	make install-gcc
+	make install-gcc > "$LOGDIR/install_gcc"
 } || {
 	echo "Failed to build GCC!" >&2
 	exit 1

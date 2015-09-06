@@ -62,11 +62,22 @@ echo "Cloning patch collection from git..."
 	exit
 }
 
+echo "Cloning package database from git..."
+{
+	cd src &&
+	git clone "$PKGSGIT" &&
+	cd ..
+} || {
+	echo "Could not clone package database!" >&2
+	exit
+}
+
 echo "Installing build environment binaries and configuration..."
 {
 	ln -s src/buildenv/scripts bin &&
 	ln -s src/buildenv/config etc &&
-	ln -s src/patches patch
+	ln -s src/patches patch &&
+	ln -s src/pkgs pkgs
 } || {
 	echo "Could not install build environment!"
 	exit
@@ -74,3 +85,5 @@ echo "Installing build environment binaries and configuration..."
 
 echo "Build environment has been installed in $INSTALLDIR"
 echo "From \"$INSTALLDIR\" invoke ./bin/startenv to launch the build environment"
+echo "Run pkg_mktarget <target triple> in order to prepare a target environment"
+echo "For i386, the correct target is: i386-pc-posnk"

@@ -1,6 +1,6 @@
 #!/bin/bash
 cd tmp
-wget $2 -O dlpkg || {
+wget $2 -nv --show-progress -O dlpkg || {
 	exit 255
 }
 cd ../src3p

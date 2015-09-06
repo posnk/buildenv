@@ -7,6 +7,7 @@ cd $POSBUILDROOT
 
 echo Starting newlib compilation for target $1
 
+LOGDIR="$POSBUILDROOT/log/"
 TCPREFIX="$POSBUILDROOT/toolchains"
 PREFIX="/usr"
 TARGET=$1
@@ -40,7 +41,7 @@ if [ -z "$2" ]; then
 	echo "Configuring newlib..."
 	{
 		$SDIR_NEWLIB/configure --target=$TARGET --prefix="$PREFIX" \
-				$NEWLIB_CFG
+				$NEWLIB_CFG > "$LOGDIR/cfg_newlib"
 	} || {
 		echo "Failed to configure newlib!" >&2
 		exit 1
@@ -49,7 +50,7 @@ fi
 
 echo "Building newlib..."
 {
-	make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET"
+	make tooldir=$PREFIX DESTDIR="$POSBUILDROOT/sysroot/$TARGET" > "$LOGDIR/make_newlib"
 } || {
 	echo "Failed to build newlib!" >&2
 	exit 1
@@ -57,7 +58,7 @@ echo "Building newlib..."
 
 echo "Installing newlib..."
 {
-	make tooldir=$PREFIX install DESTDIR="$POSBUILDROOT/sysroot/$TARGET" &&
+	make tooldir=$PREFIX install DESTDIR="$POSBUILDROOT/sysroot/$TARGET" > "$LOGDIR/inst_newlib" &&
 	install "$TARGET/newlib/libc/sys/posnk/crti.o" "$POSBUILDROOT/sysroot/$TARGET/usr/lib/crti.o" &&
 	install "$TARGET/newlib/libc/sys/posnk/crtn.o" "$POSBUILDROOT/sysroot/$TARGET/usr/lib/crtn.o"	
 	

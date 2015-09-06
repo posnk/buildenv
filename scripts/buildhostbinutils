@@ -5,6 +5,7 @@ cd $POSBUILDROOT
 
 echo Starting binutils compilation for target $1
 
+LOGDIR="$POSBUILDROOT/log/"
 PREFIX="$POSBUILDROOT/toolchains"
 TARGET=$1
 PATH="$PREFIX/bin:$PATH"
@@ -37,7 +38,7 @@ if [ -z "$2" ]; then
 	echo "Configuring binutils..."
 	{
 		$SDIR_BUTILS/configure --target=$TARGET --prefix="$PREFIX" \
-				$BUTILS_CFG
+				$BUTILS_CFG > "$LOGDIR/cfg_binutils"
 	} || {
 		echo "Failed to configure binutils!" >&2
 		exit 1
@@ -46,7 +47,7 @@ fi
 
 echo "Building binutils..."
 {
-	make
+	make > "$LOGDIR/make_binutils"
 } || {
 	echo "Failed to build binutils!" >&2
 	exit 1
@@ -54,7 +55,7 @@ echo "Building binutils..."
 
 echo "Installing binutils..."
 {
-	make install
+	make install > "$LOGDIR/inst_binutils"
 } || {
 	echo "Failed to install binutils!" >&2
 	exit 1

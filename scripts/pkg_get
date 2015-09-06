@@ -112,7 +112,7 @@ elif [ "$PKGINFO_PATCHTYPE" = "pkg" ]; then
 	cd "$POSBUILDROOT/src3m"
 
 	cp -r "../src3p/$PKGINFO_NAME" "./$PKGINFO_NAME"
-	patch -p0 < "$PKGMGR_PKGDIR/posnk.patch"	
+	patch -p0 < "$PKGMGR_PKGDIR/posnk.patch" > /dev/null	
 
 elif [ "$PKGINFO_PATCHTYPE" = "upstream" ]; then
 
