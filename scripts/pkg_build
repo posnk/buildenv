@@ -14,10 +14,19 @@ PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$PKGMGR_TARGET"
 PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
 PKGMGR_CFGTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_cfg"
 
-if [ -f "$PKGMGR_INTOKEN" -a "$PKGMGR_FORCEIN" != "yes" ]; then
-	echo "Package $1 already installed"
-	echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
-	exit 0
+if [ -f "$PKGMGR_INTOKEN" ]; then
+
+	PKGMGR_INVERSION=`cat $PKGMGR_INTOKEN`
+
+	if [ "$PKGMGR_INVERSION" != "$PKGINFO_VERSION" ]; then
+		echo "Upgrading $PKGMGR_PKG from $PKGMGR_INVERSION \
+to $PKGINFO_VERSION"
+
+	elif [ "$PKGMGR_FORCEIN" != "yes "]; then
+		echo "Package $1 already installed"
+		echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
+		exit 0
+	fi
 fi
 
 if [ ! -d "$PKGMGR_TRGROOT" ]; then

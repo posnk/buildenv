@@ -3,8 +3,7 @@
 # written by Peter Bosch <peterbosc@gmail.com>
 
 . pkg_load
-
-PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
+s
 PKGMGR_DLTOKEN="$POSBUILDROOT/var/pkgs/$PKGINFO_NAME""_dl"
 
 if [ "$PKGINFO_FETCHTYPE" = "meta" ]; then
@@ -19,7 +18,6 @@ if [  -f "$PKGMGR_DLTOKEN" ]; then
 
 		echo "Upgrading $PKGMGR_PKG from $PKGMGR_DLVERSION \
 to $PKGINFO_VERSION"
-		rm $PKGMGR_INTOKEN
 
 	elif [ "$PKGMGR_FORCEDL" != "yes" ]; then 
 		echo "Package $PKGMGR_PKG already download!"
