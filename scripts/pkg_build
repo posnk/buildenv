@@ -39,7 +39,7 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 		echo "Doing autotools build"
 		echo "Download URL: $PKGINFO_FETCHURL"
 	fi	
-
+	echo $PKGMGR_CFGPKG
 	if [ ! -f "$PKGMGR_CFGPKG" ]; then
 		echo "Package $1 does not support target $PKGMGR_TARGET"
 		exit 255
