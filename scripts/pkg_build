@@ -13,16 +13,18 @@ SDIR_PKG="$POSBUILDROOT/src3m/$PKGINFO_NAME"
 PKGMGR_TRGROOT="$POSBUILDROOT/sysroot/$PKGMGR_TARGET"
 PKGMGR_INTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_inst"
 PKGMGR_CFGTOKEN="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_cfg"
+PKGMGR_FILELIST="$PKGMGR_TRGROOT/var/pkgs/$PKGINFO_NAME""_files"
+export PKG_CONFIG=cross-pkg-config
+export PKG_CONFIG_FOR_BUILD=pkg-config
 
 if [ -f "$PKGMGR_INTOKEN" ]; then
-
 	PKGMGR_INVERSION=`cat $PKGMGR_INTOKEN`
 
 	if [ "$PKGMGR_INVERSION" != "$PKGINFO_VERSION" ]; then
 		echo "Upgrading $PKGMGR_PKG from $PKGMGR_INVERSION \
 to $PKGINFO_VERSION"
 
-	elif [ "$PKGMGR_FORCEIN" != "yes "]; then
+	elif [ "$PKGMGR_FORCEIN" != "yes" ]; then
 		echo "Package $1 already installed"
 		echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
 		exit 0
@@ -48,13 +50,15 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 		echo "Doing autotools build"
 		echo "Download URL: $PKGINFO_FETCHURL"
 	fi	
-	echo $PKGMGR_CFGPKG
+	
 	if [ ! -f "$PKGMGR_CFGPKG" ]; then
 		echo "Package $1 does not support target $PKGMGR_TARGET"
-		exit 255
+		#exit 255
+		PKG_CFG="--with-sysroot=yes"
+	else
+		. $PKGMGR_CFGPKG
 	fi
-	
-	. $PKGMGR_CFGPKG
+	echo $PKG_CFG
 	
 	if [ ! -d "$BDIR_PKG" ]; then
 		echo "Creating build directory for $PKGMGR_PKG ..."
@@ -63,6 +67,8 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 			exit 255
 		}
 	fi
+
+	export CC="$PKGMGR_TARGET-gcc"
 
 	echo "Configuring package $PKGMGR_PKG ..."
 
@@ -75,22 +81,69 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 		exit 255
 	}
 
+	treepre=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepre"
+
 	echo "Building package $PKGMGR_PKG ..."
 	{
-		make tooldir="$PKGINFO_PREFIX" DESTDIR="$PKGMGR_TRGROOT" 
+		make tooldir="$PKGINFO_PREFIX" DESTDIR="$PKGMGR_TRGROOT" \
+$PKGINFO_BTARGET
 	} || {
 		echo "Failed to build package $PKGMGR_PKG !"
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
+		exit 255
 	}
 
+	echo "Installing package $PKGMGR_PKG ..."
+	{
+		make tooldir="$PKGINFO_PREFIX" DESTDIR="$PKGMGR_TRGROOT" \
+$PKGINFO_ITARGET
+	} || {
+		echo "Failed to install package $PKGMGR_PKG !"
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
+		exit 255
+	}
+
+	treepost=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepost"
+	treediff="$PKGMGR_FILELIST"
+	comm -13 "$treepre" "$treepost" > "$treediff"
+	rm "$treepost"
+	rm "$treepre"
+	
 elif [ "$PKGINFO_BUILDTYPE" = "cmd" ]; then
 
 	echo "Building package $PKGINFO_NAME ..."
+	treepre=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepre"
 	{
 		$PKGINFO_BUILDCMD 
 	} || {
 		echo "Failed to build package $PKGMGR_PKG !"
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
 		exit 255
 	}
+	treepost=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepost"
+	treediff="$PKGMGR_FILELIST"
+	comm -13 "$treepre" "$treepost" > "$treediff"
+	rm "$treepost"
+	rm "$treepre"
 
 elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 
@@ -107,12 +160,22 @@ elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 
 	cd "$SDIR_PRG"
 
+	treepre=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepre"
+
 	echo "Building $PKGMGR_PKG ..."
 	
 	{
 		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT"
 	} || {
 		echo "Failed to build $PKGMGR_PKG!"
+
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
 		exit 
 	}
 	
@@ -121,7 +184,21 @@ elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT" install
 	} || {
 		echo "Failed to install $PKGMGR_PKG!"
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
+		exit 255
 	}
+
+	treepost=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepost"
+	treediff="$PKGMGR_FILELIST"
+	comm -13 "$treepre" "$treepost" > "$treediff"
+	rm "$treepost"
+	rm "$treepre"
 
 elif [ "$PKGINFO_BUILDTYPE" = "meta" ]; then
 	
@@ -134,8 +211,8 @@ else
 
 fi
 
-pkg_mkinst $PKGMGR_PKG
+pkg_mkinst "$PKGMGR_PKG"
 
-echo Package installed.
+echo "Package installed."
 
 exit 0

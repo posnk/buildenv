@@ -1,0 +1,19 @@
+#!/bin/bash
+# Prints a sorted directory tree listing without leading directory
+# usage:
+#	listtree <path>
+# exout:
+#	bin/sh
+#	sbin/init
+#	etc/rc
+#	...
+TARG_DIR="$1"
+OLD_DIR=`pwd`
+(
+	cd "$TARG_DIR" &&
+	find * | sort &&
+	cd "$OLD_DIR" &&
+	exit 0
+) || (
+	exit 255
+)

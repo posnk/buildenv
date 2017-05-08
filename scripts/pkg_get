@@ -3,7 +3,7 @@
 # written by Peter Bosch <peterbosc@gmail.com>
 
 . pkg_load
-s
+
 PKGMGR_DLTOKEN="$POSBUILDROOT/var/pkgs/$PKGINFO_NAME""_dl"
 
 if [ "$PKGINFO_FETCHTYPE" = "meta" ]; then

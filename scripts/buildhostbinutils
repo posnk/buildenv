@@ -3,7 +3,7 @@
 OLDPWD=`pwd`
 cd $POSBUILDROOT
 
-echo Starting binutils compilation for target $1
+echo "Starting binutils compilation for target $1"
 
 LOGDIR="$POSBUILDROOT/log/"
 PREFIX="$POSBUILDROOT/toolchains"
@@ -11,7 +11,7 @@ TARGET=$1
 PATH="$PREFIX/bin:$PATH"
 TARG_CFGBUTILS="$POSBUILDROOT/etc/targets/$TARGET/binutils_configure"
 PKG_BUTILS=`cat etc/pkg_binutils`
-BDIR_BUTILS="build/binutils-$TARGET"
+BDIR_BUTILS="build/hostbinutils-$TARGET"
 SDIR_BUTILS="$POSBUILDROOT/src3m/$PKG_BUTILS"
 
 echo binutils package: $PKG_BUTILS

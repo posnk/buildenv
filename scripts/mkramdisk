@@ -1,0 +1,29 @@
+#!/bin/bash
+
+RAMSIZE="$1"
+SOURCE="$2"
+RAMDISK="$3"
+MOUNTPT="/tmp/mkrdmount"
+
+truncate -s $RAMSIZE "$RAMDISK" &&
+mkfs.ext2 "$RAMDISK" &&
+mkdir "$MOUNTPT" &&
+mount -o loop "$RAMDISK" "$MOUNTPT" &&
+cp -ra "$SOURCE"/* "$MOUNTPT" &&
+mknod "$MOUNTPT/dev/null" c 42 1 &&
+mknod "$MOUNTPT/dev/zero" c 42 0 &&
+mknod "$MOUNTPT/dev/tty1" c 2 0 &&
+mknod "$MOUNTPT/dev/tty2" c 2 1 &&
+mknod "$MOUNTPT/dev/tty3" c 2 2 &&
+mknod "$MOUNTPT/dev/tty4" c 2 3 &&
+mknod "$MOUNTPT/dev/tty5" c 2 4 &&
+mknod "$MOUNTPT/dev/tty6" c 2 5 &&
+mknod "$MOUNTPT/dev/tty7" c 2 6 &&
+mknod "$MOUNTPT/dev/tty8" c 2 7 &&
+mknod "$MOUNTPT/dev/tty9" c 2 8 &&
+ls -lR "$MOUNTPT" &&
+umount "$MOUNTPT" &&
+rmdir "$MOUNTPT"
+
+
+

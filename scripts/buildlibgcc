@@ -14,8 +14,8 @@ TARG_CFGGCC="$POSBUILDROOT/etc/targets/$TARGET/gcc_configure"
 TARG_CFGBUTILS="$POSBUILDROOT/etc/targets/$TARGET/binutils_configure"
 PKG_BUTILS=`cat etc/pkg_binutils`
 PKG_GCC=`cat etc/pkg_gcc`
-BDIR_BUTILS="build/binutils-$TARGET"
-BDIR_GCC="build/gcc-$TARGET"
+BDIR_BUTILS="build/hostbinutils-$TARGET"
+BDIR_GCC="build/hostgcc-$TARGET"
 SDIR_BUTILS="$POSBUILDROOT/src3m/$PKG_BUTILS"
 SDIR_GCC="$POSBUILDROOT/src3m/$PKG_GCC"
 
