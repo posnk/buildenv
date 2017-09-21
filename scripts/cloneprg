@@ -1,6 +1,6 @@
 #!/bin/bash
 # Clone a posnk program from the main repository
-GITHOST="git@github.com:posnk"
+GITHOST="https://github.com/posnk"
 PRGNAME="$1"
 PRGDIR="$POSBUILDROOT/src/$PRGNAME"
 cd $POSBUILDROOT
