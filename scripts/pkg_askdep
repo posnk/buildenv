@@ -20,7 +20,9 @@ done
 
 echo
 	echo
-
+if [ "$PKGMGR_FORCEYES" == "yes" ]; then
+	exit 0
+fi
 read -p "Do you want to proceed [yes/NO]? " PKGMGR_CONFIRM
 
 if [ "$PKGMGR_CONFIRM" != "yes" ]; then
