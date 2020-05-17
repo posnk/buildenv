@@ -1,1 +1,1 @@
-GCC_CFG="--with-sysroot=\"$POSBUILDROOT/sysroot/$TARGET\" --disable-nls --enable-languages=c,c++ CC=gcc-4.7"
+GCC_CFG="--with-sysroot=\"$POSBUILDROOT/sysroot/$TARGET\" --disable-nls --enable-languages=c,c++"
