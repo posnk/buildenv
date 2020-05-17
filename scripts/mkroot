@@ -24,6 +24,8 @@ cd "$SYSROOT_TARGET" || {
 }
 
 {
+	mkdir boot &&
+	mkdir dev &&
 	mkdir bin &&
 	mkdir sbin &&
 	mkdir lib &&
