@@ -7,7 +7,7 @@ MOUNTPT="/tmp/mkrdmount"
 
 truncate -s $RAMSIZE "$RAMDISK" &&
 mkfs.ext2 "$RAMDISK" &&
-mkdir "$MOUNTPT" &&
+mkdir -p "$MOUNTPT" &&
 mount -o loop "$RAMDISK" "$MOUNTPT" &&
 cp -ra "$SOURCE"/* "$MOUNTPT" &&
 mknod "$MOUNTPT/dev/null" c 42 1 &&
