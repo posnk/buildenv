@@ -12,6 +12,7 @@ mount -o loop "$RAMDISK" "$MOUNTPT" &&
 cp -ra "$SOURCE"/* "$MOUNTPT" &&
 mknod "$MOUNTPT/dev/null" c 42 1 &&
 mknod "$MOUNTPT/dev/zero" c 42 0 &&
+mknod "$MOUNTPT/dev/proc" b 255 0 &&
 mknod "$MOUNTPT/dev/tty1" c 2 0 &&
 mknod "$MOUNTPT/dev/tty2" c 2 1 &&
 mknod "$MOUNTPT/dev/tty3" c 2 2 &&
