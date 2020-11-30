@@ -1,0 +1,52 @@
+#!/bin/bash
+
+PARTSZ="$1"
+SOURCE="$2"
+RAMDISK="$3"
+OWNER="$4"
+MOUNTPT="/tmp/mkrdmount"
+
+rm "$RAMDISK" &&
+truncate -s "${PARTSZ}M" "$RAMDISK" || exit 255
+chown "$OWNER" "$RAMDISK"
+
+PARTEND="$(($PARTSZ * 1024 * 2 - 2048))"
+cat > /tmp/mkrd.parts <<EOF
+label: dos
+label-id: 0xdceeb74e
+unit: sectors
+
+1 : start=        2048, size=$((PARTEND)), type=83
+EOF
+
+sfdisk "$RAMDISK" < /tmp/mkrd.parts || exit 255
+
+LOOPDEV="`losetup -f -P --show "$RAMDISK"`"
+LOOPPART="${LOOPDEV}p1"
+echo "Loopdev $LOOPDEV" &&
+mkfs.ext2 "$LOOPPART" &&
+mkdir -p "$MOUNTPT" &&
+mount "$LOOPPART" "$MOUNTPT" &&
+cp -ra "$SOURCE"/* "$MOUNTPT" &&
+mknod "$MOUNTPT/dev/null" c 42 1 &&
+mknod "$MOUNTPT/dev/zero" c 42 0 &&
+mknod "$MOUNTPT/dev/proc" b 255 0 &&
+mknod "$MOUNTPT/dev/tty1" c 2 0 &&
+mknod "$MOUNTPT/dev/tty2" c 2 1 &&
+mknod "$MOUNTPT/dev/tty3" c 2 2 &&
+mknod "$MOUNTPT/dev/tty4" c 2 3 &&
+mknod "$MOUNTPT/dev/tty5" c 2 4 &&
+mknod "$MOUNTPT/dev/tty6" c 2 5 &&
+mknod "$MOUNTPT/dev/tty7" c 2 6 &&
+mknod "$MOUNTPT/dev/tty8" c 2 7 &&
+mknod "$MOUNTPT/dev/tty9" c 2 8 &&
+#ls -lR "$MOUNTPT" &&
+echo "(hd0) $LOOPDEV" > /tmp/mkrd.map &&
+grub-install --no-floppy --grub-mkdevicemap=/tmp/mkrd.map \
+	--modules="part_msdos" "--boot-directory=$MOUNTPT/boot" "$LOOPDEV" &&
+umount "$MOUNTPT" &&
+rmdir "$MOUNTPT" &&
+losetup -d "$LOOPDEV"
+
+
+
