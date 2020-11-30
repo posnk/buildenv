@@ -3,7 +3,7 @@
 OLDPWD=`pwd`
 cd $POSBUILDROOT
 
-echo Starting $1 compilation for target $2
+echo "Starting $1 compilation for target $2"
 
 TCPREFIX="$POSBUILDROOT/toolchains"
 PREFIX="/usr"
@@ -63,8 +63,8 @@ echo "Installing $PKG..."
 	libtool -v --finish $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la &&
 	safe_pbr=$(printf '%s\n' "$POSBUILDROOT/sysroot/$TARGET" | sed 's/[[\.*/]/\\&/g; s/$$/\\&/; s/^^/\\&/') &&
 	sed -i -e "s/libdir='\/usr/libdir='$safe_pbr\/usr/" $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la &&
-	sed -i -e "s/\s\/usr/ $safe_pbr\/usr/" $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la 
-	
+	sed -i -e "s/\s\/usr/ $safe_pbr\/usr/" $POSBUILDROOT/sysroot/$TARGET/usr/lib/*.la
+
 } || {
 	echo "Failed to install $PKG!" >&2
 	exit 1

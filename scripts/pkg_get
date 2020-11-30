@@ -12,14 +12,14 @@ if [ "$PKGINFO_FETCHTYPE" = "meta" ]; then
 
 fi
 
-if [  -f "$PKGMGR_DLTOKEN" ]; then 
+if [  -f "$PKGMGR_DLTOKEN" ]; then
 	PKGMGR_DLVERSION=`cat $PKGMGR_DLTOKEN`
 	if [ "$PKGMGR_DLVERSION" != "$PKGINFO_VERSION" ]; then
 
 		echo "Upgrading $PKGMGR_PKG from $PKGMGR_DLVERSION \
 to $PKGINFO_VERSION"
 
-	elif [ "$PKGMGR_FORCEDL" != "yes" ]; then 
+	elif [ "$PKGMGR_FORCEDL" != "yes" ]; then
 		echo "Package $PKGMGR_PKG already download!"
 		echo "Run PKGMGR_FORCEDL=yes pkg_get $1 to force download"
 		exit 0
@@ -35,7 +35,7 @@ fi
 
 if [ "$PKGINFO_FETCHTYPE" = "dist" ]; then
 
-	if [ -d "$POSBUILDROOT/src3p/$PKGINFO_NAME" ]; then 
+	if [ -d "$POSBUILDROOT/src3p/$PKGINFO_NAME" ]; then
 
 		echo "Upstream source already downloaded"
 
@@ -45,7 +45,7 @@ if [ "$PKGINFO_FETCHTYPE" = "dist" ]; then
 			echo "Doing dist fetch"
 			echo "Extraction options: $PKGINFO_FETCHOPTS"
 			echo "Download URL: $PKGINFO_FETCHURL"
-		fi	
+		fi
 
 		echo "Downloading package $PKGINFO_NAME ..."
 		fetchpkg "$PKGINFO_FETCHOPTS" "$PKGINFO_FETCHURL" || {
@@ -61,6 +61,14 @@ elif [ "$PKGINFO_FETCHTYPE" = "git" ]; then
 	echo "Cloning package $PKGINFO_PKG ..."
 
 	cd "$POSBUILDROOT/src"
+
+	git clone "$PKGINFO_GITURL"
+
+elif [ "$PKGINFO_FETCHTYPE" = "git3p" ]; then
+
+	echo "Cloning package $PKGINFO_PKG ..."
+
+	cd "$POSBUILDROOT/src3p"
 
 	git clone "$PKGINFO_GITURL"
 
@@ -100,7 +108,7 @@ elif [ "$PKGINFO_PATCHTYPE" = "pkg" ]; then
 		echo "Missing patchfile for package $PKGMGR_PKG !"
 		exit 255
 	fi
-	
+
 	if [ -d "$POSBUILDROOT/src3m/$PKGINFO_NAME" ]; then
 		echo "Removing old patched sources..."
 		rm -r "$POSBUILDROOT/src3m/$PKGINFO_NAME" || {
@@ -112,7 +120,7 @@ elif [ "$PKGINFO_PATCHTYPE" = "pkg" ]; then
 	cd "$POSBUILDROOT/src3m"
 
 	cp -r "../src3p/$PKGINFO_NAME" "./$PKGINFO_NAME"
-	patch -p0 < "$PKGMGR_PKGDIR/posnk.patch" > /dev/null	
+	patch -p0 < "$PKGMGR_PKGDIR/posnk.patch" > /dev/null
 
 elif [ "$PKGINFO_PATCHTYPE" = "upstream" ]; then
 

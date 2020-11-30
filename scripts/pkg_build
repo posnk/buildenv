@@ -28,6 +28,8 @@ to $PKGINFO_VERSION"
 		echo "Package $1 already installed"
 		echo "Run PKGMGR_FORCEIN=yes $0 $1 to force installation"
 		exit 0
+	else
+		rm -r "$BDIR_PKG"
 	fi
 fi
 
@@ -49,8 +51,8 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 	if [ "$PKGMGR_VERBOSE" = "yes" ]; then
 		echo "Doing autotools build"
 		echo "Download URL: $PKGINFO_FETCHURL"
-	fi	
-	
+	fi
+
 	if [ ! -f "$PKGMGR_CFGPKG" ]; then
 		echo "Package $1 does not support target $PKGMGR_TARGET"
 		#exit 255
@@ -59,7 +61,7 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 		. $PKGMGR_CFGPKG
 	fi
 	echo $PKG_CFG
-	
+
 	if [ ! -d "$BDIR_PKG" ]; then
 		echo "Creating build directory for $PKGMGR_PKG ..."
 		mkdir "$BDIR_PKG" || {
@@ -75,7 +77,7 @@ if [ "$PKGINFO_BUILDTYPE" = "autotools" ]; then
 	cd "$BDIR_PKG"
 	{
 		$SDIR_PKG/configure --host=$PKGMGR_TARGET --prefix="$PKGINFO_PREFIX" \
-			$PKG_CFG 
+			$PKG_CFG
 	} || {
 		echo "Failed to configure package $PKGMGR_PKG !"
 		exit 255
@@ -120,14 +122,14 @@ $PKGINFO_ITARGET
 	comm -13 "$treepre" "$treepost" > "$treediff"
 	rm "$treepost"
 	rm "$treepre"
-	
+
 elif [ "$PKGINFO_BUILDTYPE" = "cmd" ]; then
 
 	echo "Building package $PKGINFO_NAME ..."
 	treepre=`mktemp`
 	listtree "$PKGMGR_TRGROOT" > "$treepre"
 	{
-		$PKGINFO_BUILDCMD 
+		$PKGINFO_BUILDCMD
 	} || {
 		echo "Failed to build package $PKGMGR_PKG !"
 		treepost=`mktemp`
@@ -164,7 +166,7 @@ elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 	listtree "$PKGMGR_TRGROOT" > "$treepre"
 
 	echo "Building $PKGMGR_PKG ..."
-	
+
 	{
 		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT"
 	} || {
@@ -176,9 +178,9 @@ elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 		comm -13 "$treepre" "$treepost" > "$treediff"
 		rm "$treepost"
 		rm "$treepre"
-		exit 
+		exit 255
 	}
-	
+
 	echo "Installing $PKGMGR_PKG ..."
 	{
 		make TARGET=$PKGMGR_TARGET BUILDDIR="$BDIR_PRG/" DESTDIR="$PKGMGR_TRGROOT" install
@@ -200,8 +202,65 @@ elif [ "$PKGINFO_BUILDTYPE" = "pos" ]; then
 	rm "$treepost"
 	rm "$treepre"
 
+elif [ "$PKGINFO_BUILDTYPE" = "make" ]; then
+
+	echo "Building package $PKGMGR_PKG ..."
+
+	BDIR_PRG="$POSBUILDROOT/build/$PKGINFO_NAME-$PKGMGR_TARGET"
+	SDIR_PRG="$POSBUILDROOT/src3m/$PKGINFO_NAME"
+	TCPREFIX="$POSBUILDROOT/toolchains"
+	TG_CC="$PKGMGR_TARGET-gcc"
+	TG_LD="$PKGMGR_TARGET-ld"
+
+	if [ ! -d "$BDIR_PRG" ]; then
+		echo "Creating build directory for $PKGMGR_PKG"
+		cp -a "$SDIR_PRG" "$BDIR_PRG"
+	fi
+
+	cd "$BDIR_PRG"
+
+	treepre=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepre"
+
+	echo "Building $PKGMGR_PKG ..."
+
+	{
+		make CC="$TG_CC" LD="$TG_LD" DESTDIR="$PKGMGR_TRGROOT"
+	} || {
+		echo "Failed to build $PKGMGR_PKG!"
+
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
+		exit 255
+	}
+
+	echo "Installing $PKGMGR_PKG ..."
+	{
+		make CC="$TG_CC" LD="$TG_LD" DESTDIR="$PKGMGR_TRGROOT" install
+	} || {
+		echo "Failed to install $PKGMGR_PKG!"
+		treepost=`mktemp`
+		listtree "$PKGMGR_TRGROOT" > "$treepost"
+		treediff="$PKGMGR_FILELIST"
+		comm -13 "$treepre" "$treepost" > "$treediff"
+		rm "$treepost"
+		rm "$treepre"
+		exit 255
+	}
+
+	treepost=`mktemp`
+	listtree "$PKGMGR_TRGROOT" > "$treepost"
+	treediff="$PKGMGR_FILELIST"
+	comm -13 "$treepre" "$treepost" > "$treediff"
+	rm "$treepost"
+	rm "$treepre"
+
 elif [ "$PKGINFO_BUILDTYPE" = "meta" ]; then
-	
+
 	exit 0
 
 else
